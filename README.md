@@ -1,73 +1,50 @@
-# React + TypeScript + Vite
+# Bingo Board Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive web application for creating, customizing, and sharing Bingo boards. Built with React, TypeScript, and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **AI-Powered Generation**: Generate custom Bingo boards using AI based on any theme or topic
+- **Interactive Board**: Click squares to mark them, double-click to edit text
+- **PDF Export**: Download your board as a high-quality PDF (A1 size)
+- **Persistent Storage**: Your boards are automatically saved to localStorage
+- **Free Space**: Traditional center square is always marked as "FREE SPACE"
+- **Default AI Engineer Board**: Pre-loaded with tasks to level up as an AI Engineer
 
-## React Compiler
+## API Requirements
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+The application expects a POST endpoint at `/generate-bingo` that:
+- Accepts a JSON payload with a `prompt` field
+- Returns either:
+  - An array of 24 strings (FREE SPACE is automatically inserted at position 12)
+  - An object with a `squares` property containing 25 strings
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Example API response:
+```json
+[
+  "Item 1",
+  "Item 2",
+  ...
+  "Item 24"
+]
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Usage
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Generate a Board**: Enter a theme in the text field and click "Generate Board"
+2. **Mark Squares**: Click any square to mark it as complete
+3. **Edit Squares**: Double-click any square (except FREE SPACE) to edit its text
+4. **Download**: Click "Download My Board" to save as PDF
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Technologies
+
+- React 18
+- TypeScript
+- Vite
+- html2canvas
+- jsPDF
+
+
+## License
+
+[Apache 2.0](LICENSE)
