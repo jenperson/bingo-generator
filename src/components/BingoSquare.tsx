@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface BingoSquareProps {
   text: string;
@@ -10,6 +10,32 @@ interface BingoSquareProps {
 function BingoSquare({ text, isMarked, onToggle, onTextChange }: BingoSquareProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(text);
+  const [fontSize, setFontSize] = useState(0.9);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isEditing && textRef.current && buttonRef.current) {
+      const button = buttonRef.current;
+      const span = textRef.current;
+      
+      // Reset to default size
+      let size = 0.9;
+      span.style.fontSize = `${size}rem`;
+      
+      // Reduce font size if text overflows
+      while (
+        (span.scrollHeight > button.clientHeight - 32 || 
+         span.scrollWidth > button.clientWidth - 32) && 
+        size > 0.5
+      ) {
+        size -= 0.05;
+        span.style.fontSize = `${size}rem`;
+      }
+      
+      setFontSize(size);
+    }
+  }, [text, isEditing]);
 
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -54,11 +80,14 @@ function BingoSquare({ text, isMarked, onToggle, onTextChange }: BingoSquareProp
 
   return (
     <button
+      ref={buttonRef}
       className={`bingo-square ${isMarked ? 'marked' : ''}`}
       onClick={onToggle}
       onDoubleClick={handleDoubleClick}
     >
-      {text}
+      <span ref={textRef} style={{ fontSize: `${fontSize}rem` }}>
+        {text}
+      </span>
     </button>
   );
 }
