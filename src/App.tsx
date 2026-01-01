@@ -126,46 +126,64 @@ function App() {
 
   const handleGenerate = async (prompt: string) => {
     setIsLoading(true);
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}generate-bingo`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt }),
-      });
+    let attempts = 0;
+    const maxAttempts = 3;
 
-      if (!response.ok) {
-        throw new Error('Failed to generate bingo board');
-      }
+    while (attempts < maxAttempts) {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_ENDPOINT}generate-bingo`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt }),
+        });
 
-      const data = await response.json();
-      console.log('API Response:', data);
-      console.log('Data type:', typeof data);
-      console.log('Is array?:', Array.isArray(data));
-      
-      if (data.squares && Array.isArray(data.squares) && data.squares.length === 25) {
-        console.log('Setting squares from data.squares:', data.squares);
-        setBingoSquares(data.squares);
-      } else if (Array.isArray(data) && data.length === 24) {
-        console.log('Setting squares from data array:', data);
-        // Insert FREE SPACE at position 12
-        const squaresWithFreeSpace = [
-          ...data.slice(0, 12),
-          'FREE SPACE',
-          ...data.slice(12)
-        ];
-        console.log('Squares with FREE SPACE inserted:', squaresWithFreeSpace);
-        setBingoSquares(squaresWithFreeSpace);
-      } else {
-        console.log('Data format not recognized. Expected 25 squares or 24 squares.');
+        if (!response.ok) {
+          throw new Error('Failed to generate bingo board');
+        }
+
+        const data = await response.json();
+        console.log(`API Response (attempt ${attempts + 1}):`, data);
+        console.log('Data type:', typeof data);
+        console.log('Is array?:', Array.isArray(data));
+        
+        if (data.squares && Array.isArray(data.squares) && data.squares.length === 25) {
+          console.log('Setting squares from data.squares:', data.squares);
+          setBingoSquares(data.squares);
+          setIsLoading(false);
+          return; // Success, exit the function
+        } else if (Array.isArray(data) && data.length === 24) {
+          console.log('Setting squares from data array:', data);
+          // Insert FREE SPACE at position 12
+          const squaresWithFreeSpace = [
+            ...data.slice(0, 12),
+            'FREE SPACE',
+            ...data.slice(12)
+          ];
+          console.log('Squares with FREE SPACE inserted:', squaresWithFreeSpace);
+          setBingoSquares(squaresWithFreeSpace);
+          setIsLoading(false);
+          return; // Success, exit the function
+        } else {
+          console.log(`Data format not recognized on attempt ${attempts + 1}. Expected 25 or 24 squares, got ${Array.isArray(data) ? data.length : 'non-array'}.`);
+          attempts++;
+          
+          if (attempts >= maxAttempts) {
+            alert(`Failed to generate a valid bingo board after ${maxAttempts} attempts. The API returned an incorrect number of squares. Please try again.`);
+          }
+        }
+      } catch (error) {
+        console.error(`Error generating bingo board (attempt ${attempts + 1}):`, error);
+        attempts++;
+        
+        if (attempts >= maxAttempts) {
+          alert('Failed to generate bingo board after multiple attempts. Please check your connection and try again.');
+        }
       }
-    } catch (error) {
-      console.error('Error generating bingo board:', error);
-      alert('Failed to generate bingo board. Please try again.');
-    } finally {
-      setIsLoading(false);
     }
+    
+    setIsLoading(false);
   };
 
   return (
